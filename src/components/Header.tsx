@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Menu } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const Header = () => {
   return (
@@ -27,11 +28,11 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" className="hidden md:flex">
-            Sign In
+          <Button variant="ghost" className="hidden md:flex" asChild>
+            <Link to="/login">Sign In</Link>
           </Button>
-          <Button variant="accent">
-            Get Started
+          <Button variant="accent" asChild>
+            <Link to="/register">Get Started</Link>
           </Button>
           <Button variant="ghost" size="sm" className="md:hidden">
             <Menu size={20} />

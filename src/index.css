@@ -36,6 +36,12 @@ All colors MUST be HSL.
     --accent-foreground: 0 0% 100%;
     --accent-light: 25 85% 70%;
 
+    /* Additional semantic colors */
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --error: 0 84% 60%;
+    --info: 204 94% 55%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
@@ -47,11 +53,15 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-light)) 50%, hsl(var(--accent)) 100%);
     --gradient-card: linear-gradient(180deg, hsl(var(--card)), hsl(var(--secondary)));
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--accent-light)));
     
     /* Shadows */
     --shadow-soft: 0 4px 20px -2px hsl(var(--primary) / 0.1);
     --shadow-glow: 0 0 30px hsl(var(--accent) / 0.2);
     --shadow-elevated: 0 10px 40px -5px hsl(var(--primary) / 0.15);
+    --shadow-card: 0 8px 25px -8px hsl(var(--primary) / 0.15);
+    --shadow-medium: 0 10px 15px -3px hsl(var(--primary) / 0.1);
+    --shadow-large: 0 20px 25px -5px hsl(var(--primary) / 0.1);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
