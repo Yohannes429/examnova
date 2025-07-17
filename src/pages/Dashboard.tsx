@@ -13,8 +13,13 @@ import {
   FileText, 
   BarChart3,
   Settings,
-  LogOut
+  LogOut,
+  Play,
+  PenTool
 } from "lucide-react";
+import ExamCreator from "@/components/ExamCreator";
+import ExamTaker from "@/components/ExamTaker";
+import ResultsViewer from "@/components/ResultsViewer";
 
 const Dashboard = () => {
   const [userRole] = useState<"teacher" | "student">("teacher"); // This will come from Supabase auth
@@ -58,6 +63,8 @@ const Dashboard = () => {
 };
 
 const TeacherDashboard = () => {
+  const [activeTab, setActiveTab] = useState("overview");
+  
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
@@ -112,17 +119,21 @@ const TeacherDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="exams" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
-          <TabsTrigger value="exams">My Exams</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="create">Create Exam</TabsTrigger>
           <TabsTrigger value="results">Results</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="exams" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">My Exams</h2>
-            <Button className="bg-gradient-primary hover:shadow-glow">
+            <Button 
+              onClick={() => setActiveTab("create")}
+              className="bg-gradient-primary hover:shadow-glow"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create New Exam
             </Button>
@@ -149,9 +160,11 @@ const TeacherDashboard = () => {
                 <CardContent>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="flex-1">
+                      <Play className="h-3 w-3 mr-1" />
                       View
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1">
+                      <PenTool className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
                   </div>
@@ -161,16 +174,12 @@ const TeacherDashboard = () => {
           </div>
         </TabsContent>
 
+        <TabsContent value="create">
+          <ExamCreator />
+        </TabsContent>
+
         <TabsContent value="results">
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle>Recent Results</CardTitle>
-              <CardDescription>Latest exam results from your students</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Results data will be loaded from Supabase.</p>
-            </CardContent>
-          </Card>
+          <ResultsViewer userRole="teacher" />
         </TabsContent>
 
         <TabsContent value="analytics">
@@ -193,6 +202,49 @@ const TeacherDashboard = () => {
 };
 
 const StudentDashboard = () => {
+  const [selectedExam, setSelectedExam] = useState<any>(null);
+  const [showResults, setShowResults] = useState(false);
+  const [examResult, setExamResult] = useState<{score: number, answers: Record<string, string>} | null>(null);
+
+  // Mock exam data
+  const mockExam = {
+    id: "1",
+    title: "Mathematics Quiz",
+    description: "Basic algebra and geometry questions",
+    duration: 30,
+    questions: [
+      {
+        id: "q1",
+        type: "mcq" as const,
+        question: "What is 2 + 2?",
+        options: ["3", "4", "5", "6"],
+        points: 1
+      },
+      {
+        id: "q2", 
+        type: "true-false" as const,
+        question: "The square root of 16 is 4.",
+        points: 1
+      },
+      {
+        id: "q3",
+        type: "fill-blank" as const,
+        question: "The area of a circle with radius 5 is ___π.",
+        points: 2
+      }
+    ]
+  };
+
+  const handleExamComplete = (answers: Record<string, string>, score: number) => {
+    setExamResult({ answers, score });
+    setSelectedExam(null);
+    setShowResults(true);
+  };
+
+  if (selectedExam) {
+    return <ExamTaker exam={selectedExam} onComplete={handleExamComplete} />;
+  }
+
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
@@ -246,38 +298,92 @@ const StudentDashboard = () => {
         </Card>
       </div>
 
-      {/* Available Exams */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Available Exams</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            { title: "Mathematics Quiz", teacher: "Dr. Smith", duration: "30 min", deadline: "Today, 5:00 PM" },
-            { title: "Science Test", teacher: "Prof. Johnson", duration: "45 min", deadline: "Tomorrow, 2:00 PM" },
-            { title: "History Assessment", teacher: "Ms. Davis", duration: "60 min", deadline: "Dec 20, 10:00 AM" },
-          ].map((exam, index) => (
-            <Card key={index} className="shadow-card hover:shadow-large transition-all cursor-pointer">
-              <CardHeader>
-                <CardTitle className="text-lg">{exam.title}</CardTitle>
-                <CardDescription>
-                  By {exam.teacher} • {exam.duration}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    Due: {exam.deadline}
+      <Tabs defaultValue="exams" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 lg:w-[300px]">
+          <TabsTrigger value="exams">Available Exams</TabsTrigger>
+          <TabsTrigger value="results">My Results</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="exams" className="space-y-6">
+          <h2 className="text-2xl font-bold">Available Exams</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { ...mockExam, teacher: "Dr. Smith", deadline: "Today, 5:00 PM" },
+              { 
+                id: "2",
+                title: "Science Test", 
+                teacher: "Prof. Johnson", 
+                duration: 45, 
+                deadline: "Tomorrow, 2:00 PM",
+                description: "Physics and chemistry basics"
+              },
+              { 
+                id: "3",
+                title: "History Assessment", 
+                teacher: "Ms. Davis", 
+                duration: 60, 
+                deadline: "Dec 20, 10:00 AM",
+                description: "World War II and its aftermath"
+              },
+            ].map((exam, index) => (
+              <Card key={index} className="shadow-card hover:shadow-large transition-all cursor-pointer">
+                <CardHeader>
+                  <CardTitle className="text-lg">{exam.title}</CardTitle>
+                  <CardDescription>
+                    By {exam.teacher} • {exam.duration} min
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      Due: {exam.deadline}
+                    </div>
+                    <Button 
+                      className="w-full bg-gradient-primary hover:shadow-glow"
+                      onClick={() => setSelectedExam(exam.id === "1" ? mockExam : exam)}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Start Exam
+                    </Button>
                   </div>
-                  <Button className="w-full bg-gradient-primary hover:shadow-glow">
-                    Start Exam
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="results">
+          <ResultsViewer userRole="student" />
+        </TabsContent>
+      </Tabs>
+
+      {examResult && showResults && (
+        <Card className="shadow-card border-success">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-success">
+              <Trophy className="h-5 w-5" />
+              Exam Completed!
+            </CardTitle>
+            <CardDescription>Your results are ready</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center space-y-4">
+              <div className="text-4xl font-bold text-success">{examResult.score}%</div>
+              <p className="text-muted-foreground">
+                Great job! You can view detailed results in the "My Results" tab.
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowResults(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
