@@ -127,7 +127,7 @@ const ExamCreator = () => {
                   <SelectValue placeholder="Select correct option" />
                 </SelectTrigger>
                 <SelectContent>
-                  {currentQuestion.options?.map((option, index) => (
+                  {currentQuestion.options?.filter(option => option.trim() !== "").map((option, index) => (
                     <SelectItem key={index} value={option}>
                       Option {index + 1}: {option}
                     </SelectItem>
