@@ -147,11 +147,11 @@ const TeacherDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => setActiveTab("results")}>
                           <Play className="h-3 w-3 mr-1" />
                           View
                         </Button>
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => setActiveTab("create")}>
                           <PenTool className="h-3 w-3 mr-1" />
                           Edit
                         </Button>

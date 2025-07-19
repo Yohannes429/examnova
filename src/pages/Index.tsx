@@ -51,11 +51,11 @@ const Index = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" variant="accent" className="text-lg px-8">
+                <Button size="lg" variant="accent" className="text-lg px-8" onClick={() => window.location.href = "/register"}>
                   <Users className="mr-2" size={20} />
                   Start Teaching
                 </Button>
-                <Button size="lg" variant="hero" className="text-lg px-8">
+                <Button size="lg" variant="hero" className="text-lg px-8" onClick={() => window.location.href = "/register"}>
                   <BookOpen className="mr-2" size={20} />
                   Take Exam
                 </Button>
@@ -334,11 +334,11 @@ const Index = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="accent" className="text-lg px-8">
+            <Button size="lg" variant="accent" className="text-lg px-8" onClick={() => window.location.href = "/register"}>
               <Award className="mr-2" size={20} />
               Start Free Trial
             </Button>
-            <Button size="lg" variant="hero" className="text-lg px-8 border-primary-foreground/30">
+            <Button size="lg" variant="hero" className="text-lg px-8 border-primary-foreground/30" onClick={() => window.location.href = "/register"}>
               <Globe className="mr-2" size={20} />
               View Demo
             </Button>

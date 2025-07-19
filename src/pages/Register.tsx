@@ -14,7 +14,8 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "student"
+    role: "student",
+    teacherUsername: ""
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -113,10 +114,25 @@ const Register = () => {
                       Teacher
                     </Label>
                   </div>
-                </RadioGroup>
-              </div>
-              
-              <div className="space-y-2">
+                 </RadioGroup>
+               </div>
+
+               {formData.role === "student" && (
+                 <div className="space-y-2">
+                   <Label htmlFor="teacherUsername">Teacher's Username</Label>
+                   <Input
+                     id="teacherUsername"
+                     type="text"
+                     placeholder="Enter your teacher's username"
+                     value={formData.teacherUsername}
+                     onChange={(e) => setFormData({...formData, teacherUsername: e.target.value})}
+                     required
+                     className="h-11"
+                   />
+                 </div>
+               )}
+               
+               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input

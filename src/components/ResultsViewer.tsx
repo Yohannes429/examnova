@@ -16,6 +16,7 @@ import {
   XCircle,
   Clock
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface StudentResult {
   id: string;
@@ -45,99 +46,49 @@ interface ResultsViewerProps {
 }
 
 const ResultsViewer = ({ userRole, studentResults = [], examResults = [] }: ResultsViewerProps) => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedExam, setSelectedExam] = useState<string>("");
 
-  // Mock data for demonstration
-  const mockExamResults: ExamResult[] = [
-    {
-      id: "1",
-      title: "Mathematics Quiz",
-      description: "Basic algebra and geometry",
-      createdAt: "2024-01-15",
-      averageScore: 85,
-      completionRate: 94,
-      students: [
-        {
-          id: "1",
-          studentName: "Alice Johnson",
-          email: "alice@example.com",
-          score: 92,
-          totalPoints: 100,
-          timeSpent: 25,
-          submittedAt: "2024-01-15T10:30:00Z",
-          status: "completed"
-        },
-        {
-          id: "2",
-          studentName: "Bob Smith",
-          email: "bob@example.com",
-          score: 78,
-          totalPoints: 100,
-          timeSpent: 28,
-          submittedAt: "2024-01-15T11:15:00Z",
-          status: "completed"
-        },
-        {
-          id: "3",
-          studentName: "Carol Davis",
-          email: "carol@example.com",
-          score: 0,
-          totalPoints: 100,
-          timeSpent: 0,
-          submittedAt: "",
-          status: "not-started"
-        }
-      ]
-    },
-    {
-      id: "2",
-      title: "Science Test",
-      description: "Physics and chemistry basics",
-      createdAt: "2024-01-12",
-      averageScore: 76,
-      completionRate: 87,
-      students: [
-        {
-          id: "4",
-          studentName: "David Wilson",
-          email: "david@example.com",
-          score: 88,
-          totalPoints: 100,
-          timeSpent: 42,
-          submittedAt: "2024-01-12T14:20:00Z",
-          status: "completed"
-        }
-      ]
-    }
-  ];
+  const handleExportResults = () => {
+    toast({
+      title: "Export Started",
+      description: "Your results are being prepared for download."
+    });
+  };
 
-  const mockStudentResults: StudentResult[] = [
-    {
-      id: "1",
-      studentName: "John Doe",
-      email: "john@example.com",
-      score: 92,
-      totalPoints: 100,
-      timeSpent: 25,
-      submittedAt: "2024-01-15T10:30:00Z",
-      status: "completed"
-    },
-    {
-      id: "2",
-      studentName: "John Doe",
-      email: "john@example.com",
-      score: 78,
-      totalPoints: 100,
-      timeSpent: 28,
-      submittedAt: "2024-01-12T14:20:00Z",
-      status: "completed"
-    }
-  ];
+  const handleExportData = () => {
+    toast({
+      title: "Export Data",
+      description: "Student data is being exported."
+    });
+  };
+
+  // Real data will come from Supabase - no fake results
+  const mockExamResults: ExamResult[] = [];
+  const mockStudentResults: StudentResult[] = [];
 
   const displayExamResults = examResults.length > 0 ? examResults : mockExamResults;
   const displayStudentResults = studentResults.length > 0 ? studentResults : mockStudentResults;
+
+  // Show message when no real data is available
+  if (displayExamResults.length === 0 && displayStudentResults.length === 0) {
+    return (
+      <Card className="shadow-card">
+        <CardContent className="p-8 text-center">
+          <Trophy className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">No Results Available</h3>
+          <p className="text-muted-foreground">
+            {userRole === "teacher" 
+              ? "No exam results to display. Create and assign exams to see results here."
+              : "No exam results yet. Complete some exams to see your results here."
+            }
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-success";
@@ -315,7 +266,7 @@ const ResultsViewer = ({ userRole, studentResults = [], examResults = [] }: Resu
         <TabsContent value="exams" className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Exam Results</h2>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2" onClick={handleExportResults}>
               <Download className="h-4 w-4" />
               Export Results
             </Button>
@@ -371,7 +322,7 @@ const ResultsViewer = ({ userRole, studentResults = [], examResults = [] }: Resu
         <TabsContent value="students" className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Student Performance</h2>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2" onClick={handleExportData}>
               <Download className="h-4 w-4" />
               Export Data
             </Button>

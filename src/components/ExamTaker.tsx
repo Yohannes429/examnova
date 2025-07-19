@@ -34,10 +34,26 @@ const ExamTaker = ({ exam, onComplete }: ExamTakerProps) => {
   const { toast } = useToast();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [timeLeft, setTimeLeft] = useState(exam.duration * 60); // Convert to seconds
+  const [timeLeft, setTimeLeft] = useState(exam?.duration ? exam.duration * 60 : 0); // Convert to seconds
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [warningCount, setWarningCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Safety checks
+  if (!exam || !exam.questions || exam.questions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="shadow-card max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground">No exam data available</p>
+            <Button onClick={() => window.location.href = "/student-dashboard"} className="mt-4">
+              Back to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const currentQuestion = exam.questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / exam.questions.length) * 100;

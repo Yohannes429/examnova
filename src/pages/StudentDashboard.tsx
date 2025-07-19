@@ -20,12 +20,15 @@ const StudentDashboard = () => {
   const [showResults, setShowResults] = useState(false);
   const [examResult, setExamResult] = useState<{score: number, answers: Record<string, string>} | null>(null);
 
-  // Mock exam data
+  // Mock exam data - filtered by teacher username
+  const teacherUsername = "dr_smith"; // This would come from student's registration
+  
   const mockExam = {
     id: "1",
     title: "Mathematics Quiz",
     description: "Basic algebra and geometry questions",
     duration: 30,
+    teacherUsername: "dr_smith",
     questions: [
       {
         id: "q1",
@@ -48,6 +51,21 @@ const StudentDashboard = () => {
       }
     ]
   };
+
+  // Filter exams by teacher username
+  const availableExams = [
+    { ...mockExam, teacher: "Dr. Smith", deadline: "Today, 5:00 PM" },
+    { 
+      id: "2",
+      title: "Science Test", 
+      teacher: "Dr. Smith", 
+      teacherUsername: "dr_smith",
+      duration: 45, 
+      deadline: "Tomorrow, 2:00 PM",
+      description: "Physics and chemistry basics",
+      questions: []
+    }
+  ].filter(exam => exam.teacherUsername === teacherUsername);
 
   const handleExamComplete = (answers: Record<string, string>, score: number) => {
     setExamResult({ answers, score });
@@ -153,25 +171,7 @@ const StudentDashboard = () => {
               <h2 className="text-2xl font-bold">Available Exams</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[
-                  { ...mockExam, teacher: "Dr. Smith", deadline: "Today, 5:00 PM" },
-                  { 
-                    id: "2",
-                    title: "Science Test", 
-                    teacher: "Prof. Johnson", 
-                    duration: 45, 
-                    deadline: "Tomorrow, 2:00 PM",
-                    description: "Physics and chemistry basics"
-                  },
-                  { 
-                    id: "3",
-                    title: "History Assessment", 
-                    teacher: "Ms. Davis", 
-                    duration: 60, 
-                    deadline: "Dec 20, 10:00 AM",
-                    description: "World War II and its aftermath"
-                  },
-                ].map((exam, index) => (
+                {availableExams.map((exam, index) => (
                   <Card key={index} className="shadow-card hover:shadow-large transition-all cursor-pointer">
                     <CardHeader>
                       <CardTitle className="text-lg">{exam.title}</CardTitle>
