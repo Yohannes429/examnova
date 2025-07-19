@@ -23,8 +23,16 @@ const Register = () => {
       alert("Passwords don't match!");
       return;
     }
+    
     // Registration will be handled by Supabase integration
     console.log("Registration attempt:", formData);
+    
+    // Navigate based on role
+    if (formData.role === "teacher") {
+      window.location.href = "/teacher-dashboard";
+    } else {
+      window.location.href = "/student-dashboard";
+    }
   };
 
   return (
