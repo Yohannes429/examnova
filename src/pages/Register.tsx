@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,10 +31,13 @@ const Register = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+          <button 
+            onClick={() => window.location.href = "/"} 
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to home
-          </Link>
+          </button>
           <div className="flex justify-center">
             <div className="p-3 bg-gradient-to-br from-primary to-accent rounded-2xl">
               <BookOpen className="h-8 w-8 text-white" />
@@ -169,12 +171,12 @@ const Register = () => {
 
             <div className="mt-6 text-center text-sm">
               Already have an account?{" "}
-              <Link 
-                to="/login" 
+              <button 
+                onClick={() => window.location.href = "/login"} 
                 className="text-primary hover:text-primary-dark font-medium transition-colors"
               >
                 Sign in
-              </Link>
+              </button>
             </div>
           </CardContent>
         </Card>
