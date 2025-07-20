@@ -11,6 +11,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -25,8 +26,23 @@ const Register = () => {
       return;
     }
     
-    // Registration will be handled by Supabase integration
-    console.log("Registration attempt:", formData);
+    // Store user data in localStorage for now (will be replaced with Supabase)
+    const userData = {
+      name: formData.name,
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role,
+      teacherUsername: formData.teacherUsername
+    };
+    
+    // Add to registered users list
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    registeredUsers.push(userData);
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    localStorage.setItem('isLoggedIn', 'true');
     
     // Navigate based on role
     if (formData.role === "teacher") {
@@ -75,6 +91,19 @@ const Register = () => {
                   placeholder="Enter your full name"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  required
+                  className="h-11"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Choose a unique username"
+                  value={formData.username}
+                  onChange={(e) => setFormData({...formData, username: e.target.value})}
                   required
                   className="h-11"
                 />

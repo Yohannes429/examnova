@@ -18,9 +18,11 @@ import {
 } from "lucide-react";
 import ExamCreator from "@/components/ExamCreator";
 import ResultsViewer from "@/components/ResultsViewer";
+import { useAuth } from "@/hooks/useAuth";
 
 const TeacherDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -35,7 +37,7 @@ const TeacherDashboard = () => {
               <div>
                 <h1 className="text-2xl font-bold">Teacher Dashboard</h1>
                 <p className="text-sm text-muted-foreground">
-                  Welcome back, Teacher!
+                  Welcome back, {user?.name || 'Teacher'}!
                 </p>
               </div>
             </div>
@@ -167,7 +169,7 @@ const TeacherDashboard = () => {
             </TabsContent>
 
             <TabsContent value="results">
-              <ResultsViewer userRole="teacher" />
+              <ResultsViewer userRole="teacher" currentUser={user} />
             </TabsContent>
 
             <TabsContent value="analytics">

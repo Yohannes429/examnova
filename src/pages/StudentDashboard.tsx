@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,14 +14,17 @@ import {
 } from "lucide-react";
 import ExamTaker from "@/components/ExamTaker";
 import ResultsViewer from "@/components/ResultsViewer";
+import { useAuth } from "@/hooks/useAuth";
+import { useExamResults } from "@/hooks/useExamResults";
 
 const StudentDashboard = () => {
   const [selectedExam, setSelectedExam] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
   const [examResult, setExamResult] = useState<{score: number, answers: Record<string, string>} | null>(null);
-
-  // Mock exam data - filtered by teacher username
-  const teacherUsername = "dr_smith"; // This would come from student's registration
+  
+  const { user } = useAuth();
+  const { addResult } = useExamResults('student', user);
+  const teacherUsername = user?.teacherUsername || "dr_smith";
   
   const mockExam = {
     id: "1",
@@ -68,6 +71,18 @@ const StudentDashboard = () => {
   ].filter(exam => exam.teacherUsername === teacherUsername);
 
   const handleExamComplete = (answers: Record<string, string>, score: number) => {
+    if (user && selectedExam) {
+      // Save result to localStorage
+      addResult({
+        studentName: user.name,
+        studentUsername: user.username,
+        examTitle: selectedExam.title,
+        score,
+        answers,
+        teacherUsername: selectedExam.teacherUsername
+      });
+    }
+    
     setExamResult({ answers, score });
     setSelectedExam(null);
     setShowResults(true);
@@ -90,7 +105,7 @@ const StudentDashboard = () => {
               <div>
                 <h1 className="text-2xl font-bold">Student Dashboard</h1>
                 <p className="text-sm text-muted-foreground">
-                  Welcome back, Student!
+                  Welcome back, {user?.name || 'Student'}!
                 </p>
               </div>
             </div>
@@ -200,7 +215,7 @@ const StudentDashboard = () => {
             </TabsContent>
 
             <TabsContent value="results">
-              <ResultsViewer userRole="student" />
+              <ResultsViewer userRole="student" currentUser={user} />
             </TabsContent>
           </Tabs>
 

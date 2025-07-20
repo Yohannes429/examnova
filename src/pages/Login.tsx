@@ -9,11 +9,29 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Authentication will be handled by Supabase integration
-    console.log("Login attempt:", { email, password });
+    setError("");
+    
+    // Simple authentication check against localStorage (will be replaced with Supabase)
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    const user = registeredUsers.find((u: any) => u.email === email && u.password === password);
+    
+    if (user) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      // Navigate based on role
+      if (user.role === "teacher") {
+        window.location.href = "/teacher-dashboard";
+      } else {
+        window.location.href = "/student-dashboard";
+      }
+    } else {
+      setError("Invalid email or password");
+    }
   };
 
   return (
@@ -47,6 +65,11 @@ const Login = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md border border-destructive/20">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
