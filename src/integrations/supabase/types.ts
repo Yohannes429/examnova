@@ -14,7 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      exam_results: {
+        Row: {
+          answers: Json
+          completed_at: string
+          exam_id: string
+          id: string
+          score: number
+          student_id: string
+          student_name: string
+          student_username: string
+          teacher_id: string
+          teacher_username: string
+        }
+        Insert: {
+          answers: Json
+          completed_at?: string
+          exam_id: string
+          id?: string
+          score: number
+          student_id: string
+          student_name: string
+          student_username: string
+          teacher_id: string
+          teacher_username: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          exam_id?: string
+          id?: string
+          score?: number
+          student_id?: string
+          student_name?: string
+          student_username?: string
+          teacher_id?: string
+          teacher_username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_results_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exams: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          questions: Json
+          teacher_id: string
+          teacher_username: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          questions: Json
+          teacher_id: string
+          teacher_username: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          questions?: Json
+          teacher_id?: string
+          teacher_username?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          role: string
+          teacher_username: string | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          role: string
+          teacher_username?: string | null
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          role?: string
+          teacher_username?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -40,10 +40,10 @@ export const Header = () => {
 
         <div className="flex items-center gap-3">
           <Button variant="ghost" className="hidden md:flex" asChild>
-            <SafeLink to="/login">Sign In</SafeLink>
+            <SafeLink to="/auth">Sign In</SafeLink>
           </Button>
           <Button variant="accent" asChild>
-            <SafeLink to="/register">Get Started</SafeLink>
+            <SafeLink to="/auth">Get Started</SafeLink>
           </Button>
           <Button variant="ghost" size="sm" className="md:hidden">
             <Menu size={20} />
