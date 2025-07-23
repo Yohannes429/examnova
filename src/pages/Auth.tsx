@@ -19,7 +19,6 @@ const Auth = () => {
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'teacher' | 'student'>('student');
-  const [teacherUsername, setTeacherUsername] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { signIn, signUp, user, profile } = useAuth();
@@ -59,7 +58,6 @@ const Auth = () => {
           username,
           full_name: fullName,
           role,
-          teacher_username: role === 'student' ? teacherUsername : undefined,
         });
 
         if (error) {
@@ -211,19 +209,6 @@ const Auth = () => {
                     </RadioGroup>
                   </div>
 
-                  {role === 'student' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="teacherUsername">Teacher's Username</Label>
-                      <Input
-                        id="teacherUsername"
-                        type="text"
-                        placeholder="teacher_username"
-                        value={teacherUsername}
-                        onChange={(e) => setTeacherUsername(e.target.value)}
-                        required
-                      />
-                    </div>
-                  )}
                 </>
               )}
 
