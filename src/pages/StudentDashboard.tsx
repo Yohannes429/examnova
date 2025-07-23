@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   BookOpen, 
@@ -10,7 +11,8 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Play
+  Play,
+  Search
 } from "lucide-react";
 import ExamTaker from "@/components/ExamTaker";
 import ResultsViewer from "@/components/ResultsViewer";
@@ -21,10 +23,10 @@ const StudentDashboard = () => {
   const [selectedExam, setSelectedExam] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
   const [examResult, setExamResult] = useState<{score: number, answers: Record<string, string>} | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const { user } = useAuth();
   const { addResult } = useExamResults('student', user);
-  const teacherUsername = user?.teacherUsername || "dr_smith";
   
   const mockExam = {
     id: "1",
@@ -55,8 +57,8 @@ const StudentDashboard = () => {
     ]
   };
 
-  // Filter exams by teacher username
-  const availableExams = [
+  // All available exams from different teachers
+  const allExams = [
     { ...mockExam, teacher: "Dr. Smith", deadline: "Today, 5:00 PM" },
     { 
       id: "2",
@@ -67,8 +69,33 @@ const StudentDashboard = () => {
       deadline: "Tomorrow, 2:00 PM",
       description: "Physics and chemistry basics",
       questions: []
+    },
+    { 
+      id: "3",
+      title: "English Literature", 
+      teacher: "Prof. Johnson", 
+      teacherUsername: "prof_johnson",
+      duration: 60, 
+      deadline: "Next week, 3:00 PM",
+      description: "Analysis of classic novels",
+      questions: []
+    },
+    { 
+      id: "4",
+      title: "Chemistry Lab", 
+      teacher: "Dr. Wilson", 
+      teacherUsername: "dr_wilson",
+      duration: 90, 
+      deadline: "Next week, 1:00 PM",
+      description: "Organic chemistry experiments",
+      questions: []
     }
-  ].filter(exam => exam.teacherUsername === teacherUsername);
+  ];
+
+  // Filter exams by search query (teacher username)
+  const availableExams = allExams.filter(exam => 
+    searchQuery === "" || exam.teacherUsername.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleExamComplete = (answers: Record<string, string>, score: number) => {
     if (user && selectedExam) {
@@ -183,7 +210,18 @@ const StudentDashboard = () => {
             </TabsList>
 
             <TabsContent value="exams" className="space-y-6">
-              <h2 className="text-2xl font-bold">Available Exams</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Available Exams</h2>
+                <div className="relative w-72">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search by teacher username..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {availableExams.map((exam, index) => (
