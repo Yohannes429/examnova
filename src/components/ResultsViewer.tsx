@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Trophy, Download, Filter, Calendar, Search } from "lucide-react";
+import { Trophy, Download, Filter, Calendar, Search, AlertTriangle } from "lucide-react";
 import { useExamResults } from "@/hooks/useExamResults";
 
 interface ResultsViewerProps {
@@ -77,7 +77,15 @@ const ResultsViewer = ({ userRole, currentUser }: ResultsViewerProps) => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                      <h4 className="font-medium">{result.examTitle}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">{result.examTitle}</h4>
+                        {result.status === 'disqualified' && (
+                          <Badge variant="destructive" className="flex items-center gap-1">
+                            <AlertTriangle className="h-3 w-3" />
+                            Disqualified
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">
                         {userRole === 'teacher' 
                           ? `Student: ${result.studentName} (@${result.studentUsername})` 
@@ -85,7 +93,7 @@ const ResultsViewer = ({ userRole, currentUser }: ResultsViewerProps) => {
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Badge variant={result.score >= 80 ? "default" : result.score >= 60 ? "secondary" : "destructive"}>
+                      <Badge variant={result.status === 'disqualified' ? "destructive" : (result.score >= 80 ? "default" : result.score >= 60 ? "secondary" : "destructive")}>
                         {result.score}%
                       </Badge>
                       <Button variant="outline" size="sm">

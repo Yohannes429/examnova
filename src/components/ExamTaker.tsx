@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Shield, AlertTriangle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface Question {
   id: string;
@@ -27,7 +28,7 @@ interface ExamData {
 
 interface ExamTakerProps {
   exam: ExamData;
-  onComplete: (answers: Record<string, string>, score: number) => void;
+  onComplete: (answers: Record<string, string>, score: number, status: 'completed' | 'disqualified') => void;
 }
 
 const ExamTaker = ({ exam, onComplete }: ExamTakerProps) => {
@@ -38,6 +39,8 @@ const ExamTaker = ({ exam, onComplete }: ExamTakerProps) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [warningCount, setWarningCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showExitWarning, setShowExitWarning] = useState(false);
+  const [examStatus, setExamStatus] = useState<'completed' | 'disqualified'>('completed');
 
   // Safety checks
   if (!exam || !exam.questions || exam.questions.length === 0) {
@@ -74,45 +77,26 @@ const ExamTaker = ({ exam, onComplete }: ExamTakerProps) => {
       const fullscreenElement = document.fullscreenElement;
       setIsFullscreen(!!fullscreenElement);
       
-      if (!fullscreenElement && !isSubmitted) {
-        setWarningCount(prev => prev + 1);
-        toast({
-          title: "Anti-Cheat Warning",
-          description: "Please stay in fullscreen mode during the exam.",
-          variant: "destructive"
-        });
-        
-        if (warningCount >= 2) {
-          toast({
-            title: "Exam Auto-Submit",
-            description: "Too many warnings. Exam will be submitted automatically.",
-            variant: "destructive"
-          });
-          setTimeout(() => handleSubmit(), 3000);
-        }
+      if (!fullscreenElement && !isSubmitted && isFullscreen) {
+        setShowExitWarning(true);
       }
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, [warningCount, isSubmitted]);
+  }, [isSubmitted, isFullscreen]);
 
   // Anti-cheat: Tab switch detection
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && !isSubmitted) {
-        setWarningCount(prev => prev + 1);
-        toast({
-          title: "Anti-Cheat Warning",
-          description: "Tab switching detected. Please stay on the exam page.",
-          variant: "destructive"
-        });
+      if (document.hidden && !isSubmitted && isFullscreen) {
+        setShowExitWarning(true);
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isSubmitted]);
+  }, [isSubmitted, isFullscreen]);
 
   const enterFullscreen = async () => {
     try {
@@ -172,12 +156,31 @@ const ExamTaker = ({ exam, onComplete }: ExamTakerProps) => {
       document.exitFullscreen();
     }
     
-    onComplete(answers, score);
+    onComplete(answers, score, examStatus);
     
     toast({
-      title: "Exam Submitted",
-      description: `Your score: ${score}%`
+      title: examStatus === 'disqualified' ? "Exam Disqualified" : "Exam Submitted",
+      description: examStatus === 'disqualified' 
+        ? "You exited the exam and have been disqualified." 
+        : `Your score: ${score}%`,
+      variant: examStatus === 'disqualified' ? "destructive" : "default"
     });
+  };
+
+  const handleConfirmExit = () => {
+    setExamStatus('disqualified');
+    setShowExitWarning(false);
+    handleSubmit();
+  };
+
+  const handleCancelExit = async () => {
+    setShowExitWarning(false);
+    try {
+      await document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } catch (error) {
+      console.error('Failed to re-enter fullscreen:', error);
+    }
   };
 
   const renderQuestion = () => {
@@ -378,6 +381,31 @@ const ExamTaker = ({ exam, onComplete }: ExamTakerProps) => {
           </Button>
         )}
       </div>
+
+      {/* Exit Warning Dialog */}
+      <AlertDialog open={showExitWarning} onOpenChange={setShowExitWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Anti-Cheat Warning
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>You have exited fullscreen mode or switched tabs during the exam.</p>
+              <p className="font-semibold text-foreground">If you leave the exam, it will be marked as disqualified.</p>
+              <p>Do you want to continue with the exam or exit and be disqualified?</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelExit}>
+              Continue Exam
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmExit} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Exit & Disqualify
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
