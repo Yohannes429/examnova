@@ -9,6 +9,7 @@ interface ExamResult {
   completedAt: string;
   answers: Record<string, string>;
   teacherUsername: string;
+  status: 'completed' | 'disqualified';
 }
 
 export const useExamResults = (userRole: 'teacher' | 'student', currentUser?: any) => {

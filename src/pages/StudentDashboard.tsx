@@ -12,7 +12,8 @@ import {
   Settings,
   LogOut,
   Play,
-  Search
+  Search,
+  AlertTriangle
 } from "lucide-react";
 import ExamTaker from "@/components/ExamTaker";
 import ResultsViewer from "@/components/ResultsViewer";
@@ -22,7 +23,7 @@ import { useExamResults } from "@/hooks/useExamResults";
 const StudentDashboard = () => {
   const [selectedExam, setSelectedExam] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
-  const [examResult, setExamResult] = useState<{score: number, answers: Record<string, string>} | null>(null);
+  const [examResult, setExamResult] = useState<{score: number, answers: Record<string, string>, status?: 'completed' | 'disqualified'} | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   
   const { user } = useAuth();
@@ -92,12 +93,14 @@ const StudentDashboard = () => {
     }
   ];
 
-  // Filter exams by search query (teacher username)
+  // Filter exams by search query (teacher name or username)
   const availableExams = allExams.filter(exam => 
-    searchQuery === "" || exam.teacherUsername.toLowerCase().includes(searchQuery.toLowerCase())
+    searchQuery === "" || 
+    exam.teacher.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    exam.teacherUsername.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleExamComplete = (answers: Record<string, string>, score: number) => {
+  const handleExamComplete = (answers: Record<string, string>, score: number, status: 'completed' | 'disqualified') => {
     if (user && selectedExam) {
       // Save result to localStorage
       addResult({
@@ -106,11 +109,12 @@ const StudentDashboard = () => {
         examTitle: selectedExam.title,
         score,
         answers,
-        teacherUsername: selectedExam.teacherUsername
+        teacherUsername: selectedExam.teacherUsername,
+        status
       });
     }
     
-    setExamResult({ answers, score });
+    setExamResult({ answers, score, status });
     setSelectedExam(null);
     setShowResults(true);
   };
@@ -258,19 +262,36 @@ const StudentDashboard = () => {
           </Tabs>
 
           {examResult && showResults && (
-            <Card className="shadow-card border-success">
+            <Card className={`shadow-card ${examResult.status === 'disqualified' ? 'border-destructive' : 'border-success'}`}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-success">
-                  <Trophy className="h-5 w-5" />
-                  Exam Completed!
+                <CardTitle className={`flex items-center gap-2 ${examResult.status === 'disqualified' ? 'text-destructive' : 'text-success'}`}>
+                  {examResult.status === 'disqualified' ? (
+                    <>
+                      <AlertTriangle className="h-5 w-5" />
+                      Exam Disqualified
+                    </>
+                  ) : (
+                    <>
+                      <Trophy className="h-5 w-5" />
+                      Exam Completed!
+                    </>
+                  )}
                 </CardTitle>
-                <CardDescription>Your results are ready</CardDescription>
+                <CardDescription>
+                  {examResult.status === 'disqualified' 
+                    ? 'You exited the exam and have been disqualified' 
+                    : 'Your results are ready'}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center space-y-4">
-                  <div className="text-4xl font-bold text-success">{examResult.score}%</div>
+                  <div className={`text-4xl font-bold ${examResult.status === 'disqualified' ? 'text-destructive' : 'text-success'}`}>
+                    {examResult.score}%
+                  </div>
                   <p className="text-muted-foreground">
-                    Great job! You can view detailed results in the "My Results" tab.
+                    {examResult.status === 'disqualified' 
+                      ? 'Your exam was marked as disqualified due to leaving fullscreen mode or switching tabs.' 
+                      : 'Great job! You can view detailed results in the "My Results" tab.'}
                   </p>
                   <Button 
                     variant="outline" 
